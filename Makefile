@@ -474,7 +474,7 @@ endif
 # ----------
 
 # Builds everything but the GLES1 renderer
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft xatrix rogue ctf
 
 # ----------
 
@@ -1419,3 +1419,19 @@ $(BINDIR)/baseq2/game.so : $(GAME_OBJS)
 endif
 
 # ----------
+
+#missionpacks
+xatrix:
+	$(MAKE) --directory=missionpacks/xatrix/
+	$(Q)mkdir -p $(BINDIR)/xatrix
+	$(Q)cp missionpacks/xatrix/$(BINDIR)/game.so $(BINDIR)/xatrix/
+
+rogue:
+	$(MAKE) --directory=missionpacks/rogue/
+	$(Q)mkdir -p $(BINDIR)/rogue
+	$(Q)cp missionpacks/rogue/$(BINDIR)/game.so $(BINDIR)/rogue/
+
+ctf:
+	$(MAKE) --directory=missionpacks/ctf/
+	$(Q)mkdir -p $(BINDIR)/ctf
+	$(Q)cp missionpacks/ctf/$(BINDIR)/game.so $(BINDIR)/ctf/
