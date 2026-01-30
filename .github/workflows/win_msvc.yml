@@ -41,6 +41,8 @@ jobs:
         unzip dhewm3libs.zip "dhewm3-libs-master/i686-w64-mingw32/**" -x "dhewm3-libs-master/i686-w64-mingw32/share/**"
     - name: Check out repository code
       uses: actions/checkout@v6
+      with:
+        submodules: 'true'
     - name: Build
       run: |
         # build with cmake and visual studio

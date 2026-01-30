@@ -31,6 +31,8 @@ jobs:
         brew install sdl3 openal-soft make
     - name: Check out repository code
       uses: actions/checkout@v6
+      with:
+        submodules: 'true'
     - name: Build
       run: |
         # Public runners come with 3 CPUs.
