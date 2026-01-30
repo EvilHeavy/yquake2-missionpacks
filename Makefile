@@ -469,7 +469,7 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles1 ref_gles3 ref_soft
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles1 ref_gles3 ref_soft xatrix rogue ctf
 
 # ----------
 
@@ -1421,17 +1421,21 @@ endif
 # ----------
 
 #missionpacks
+
 xatrix:
-	$(MAKE) --directory=missionpacks/xatrix/
+	@echo "===> Building xatrix file"
+	$(MAKE) -C missionpacks/xatrix/
 	$(Q)mkdir -p $(BINDIR)/xatrix
-	$(Q)cp missionpacks/xatrix/$(BINDIR)/game.so $(BINDIR)/xatrix/
+	$(Q)cp missionpacks/xatrix/$(BINDIR)/* $(BINDIR)/xatrix/
 
 rogue:
-	$(MAKE) --directory=missionpacks/rogue/
+	@echo "===> Building rogue file"
+	$(MAKE) -C missionpacks/rogue/
 	$(Q)mkdir -p $(BINDIR)/rogue
-	$(Q)cp missionpacks/rogue/$(BINDIR)/game.so $(BINDIR)/rogue/
+	$(Q)cp missionpacks/rogue/$(BINDIR)/* $(BINDIR)/rogue/
 
 ctf:
-	$(MAKE) --directory=missionpacks/ctf/
+	@echo "===> Building ctf file"
+	$(MAKE) -C missionpacks/ctf/
 	$(Q)mkdir -p $(BINDIR)/ctf
-	$(Q)cp missionpacks/ctf/$(BINDIR)/game.so $(BINDIR)/ctf/
+	$(Q)cp missionpacks/ctf/$(BINDIR)/* $(BINDIR)/ctf/
