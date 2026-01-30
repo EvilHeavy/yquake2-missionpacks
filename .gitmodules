@@ -7,3 +7,9 @@
 [submodule "missionpacks/ctf"]
 	path = missionpacks/ctf
 	url = https://github.com/yquake2/ctf.git
+[submodule "refs/ref_vk"]
+	path = refs/ref_vk
+	url = https://github.com/yquake2/ref_vk.git
+[submodule "refs/ref_gl4"]
+	path = refs/ref_gl4
+	url = https://github.com/yquake2/ref_gl4.git

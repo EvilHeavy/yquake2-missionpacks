@@ -469,12 +469,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles1 ref_gles3 ref_soft xatrix rogue ctf
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles1 ref_gles3 ref_soft xatrix rogue ctf ref_gl4 ref_vk
 
 # ----------
 
 # Builds everything but the GLES1 renderer
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft xatrix rogue ctf
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft xatrix rogue ctf ref_gl4 ref_vk
 
 # ----------
 
@@ -1786,3 +1786,215 @@ $(BINDIR)/ctf/game.so : $(CTF_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(CTF_OBJS) $(LDLIBS) -o $@
 endif
+
+# ----------
+
+# The OpenGL 4.6 renderer lib
+
+ifeq ($(YQ2_OSTYPE), Windows)
+
+ref_gl4:
+	@echo "===> Building ref_gl4.dll"
+	${Q}mkdir -p release
+	$(MAKE) release/ref_gl4.dll
+
+release/ref_gl4.dll : GLAD_INCLUDE = -Irefs/ref_gl4/src/client/refresh/gl4/glad/include
+release/ref_gl4.dll : LDFLAGS += -shared
+
+else # not Windows or Darwin - macOS doesn't support OpenGL 4.6
+
+ref_gl4:
+	@echo "===> Building ref_gl4.so"
+	${Q}mkdir -p release
+	$(MAKE) release/ref_gl4.so
+
+release/ref_gl4.so : GLAD_INCLUDE = -Irefs/ref_gl4/src/client/refresh/gl4/glad/include
+release/ref_gl4.so : CFLAGS += -fPIC
+release/ref_gl4.so : LDFLAGS += -shared
+
+endif # OS specific ref_gl4 stuff
+
+$(BUILDDIR)/ref_gl4/src/%.o: refs/ref_gl4/src/%.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) $(GLAD_INCLUDE) -o $@ $<
+
+# ----------
+
+REFGL4_OBJS_ := \
+	src/client/refresh/gl4/gl4_draw.o \
+	src/client/refresh/gl4/gl4_image.o \
+	src/client/refresh/gl4/gl4_light.o \
+	src/client/refresh/gl4/gl4_lightmap.o \
+	src/client/refresh/gl4/gl4_main.o \
+	src/client/refresh/gl4/gl4_mesh.o \
+	src/client/refresh/gl4/gl4_misc.o \
+	src/client/refresh/gl4/gl4_model.o \
+	src/client/refresh/gl4/gl4_sdl.o \
+	src/client/refresh/gl4/gl4_surf.o \
+	src/client/refresh/gl4/gl4_warp.o \
+	src/client/refresh/gl4/gl4_shaders.o \
+	src/client/refresh/gl4/gl4_threads.o \
+	src/client/refresh/files/surf.o \
+	src/client/refresh/files/models.o \
+	src/client/refresh/files/pcx.o \
+	src/client/refresh/files/stb.o \
+	src/client/refresh/files/wal.o \
+	src/client/refresh/files/pvs.o \
+	src/common/shared/shared.o \
+	src/common/md4.o
+
+REFGL4_OBJS_GLADE_ := \
+	src/client/refresh/gl4/glad/src/glad.o
+
+ifeq ($(YQ2_OSTYPE), Windows)
+REFGL4_OBJS_ += \
+	src/backends/windows/shared/hunk.o
+else # not Windows
+REFGL4_OBJS_ += \
+	src/backends/unix/shared/hunk.o
+endif
+
+# ----------
+
+# Rewrite pathes to our object directory.
+REFGL4_OBJS = $(patsubst %,$(BUILDDIR)/ref_gl4/%,$(REFGL4_OBJS_))
+REFGL4_OBJS += $(patsubst %,$(BUILDDIR)/ref_gl4/%,$(REFGL4_OBJS_GLADE_))
+
+# ----------
+
+# Generate header dependencies.
+REFGL4_DEPS= $(REFGL4_OBJS:.o=.d)
+
+# Suck header dependencies in.
+-include $(REFGL4_DEPS)
+
+# ----------
+
+# release/ref_gl4.so
+ifeq ($(YQ2_OSTYPE), Windows)
+release/ref_gl4.dll : $(REFGL4_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFGL4_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
+	$(Q)strip $@
+
+else
+release/ref_gl4.so : $(REFGL4_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFGL4_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
+endif
+
+# ----------
+
+# The Vulkan renderer lib
+
+ifeq ($(YQ2_OSTYPE), Windows)
+
+ref_vk:
+	@echo "===> Building ref_vk.dll"
+	${Q}mkdir -p $(BINDIR)
+	$(MAKE) $(BINDIR)/ref_vk.dll
+
+$(BINDIR)/ref_vk.dll : LDFLAGS += -shared
+
+else ifeq ($(YQ2_OSTYPE), Darwin)
+
+ref_vk:
+	@echo "===> Building ref_vk.dylib"
+	${Q}mkdir -p $(BINDIR)
+	$(MAKE) $(BINDIR)/ref_vk.dylib
+
+$(BINDIR)/ref_vk.dylib : LDFLAGS += -shared
+
+else # not Windows or Darwin
+
+ref_vk:
+	@echo "===> Building ref_vk.so"
+	${Q}mkdir -p $(BINDIR)
+	$(MAKE) $(BINDIR)/ref_vk.so
+
+$(BINDIR)/ref_vk.so : CFLAGS += -fPIC
+$(BINDIR)/ref_vk.so : LDFLAGS += -shared
+
+endif # OS specific ref_vk stuff
+
+$(BUILDDIR)/ref_vk/src/%.o: refs/ref_vk/src/%.c
+	@if [ -z $(QUIET) ]; then\
+		echo "===> CC $<";\
+	fi
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) -o $@ $<
+
+# ----------
+
+REFVK_OBJS_ := \
+	src/vk/vk_buffer.o \
+	src/vk/vk_cmd.o \
+	src/vk/vk_common.o \
+	src/vk/vk_device.o \
+	src/vk/vk_draw.o \
+	src/vk/vk_image.o \
+	src/vk/vk_light.o \
+	src/vk/vk_mesh.o \
+	src/vk/vk_model.o \
+	src/vk/vk_pipeline.o \
+	src/vk/vk_main.o \
+	src/vk/vk_misc.o \
+	src/vk/vk_surf.o \
+	src/vk/vk_shaders.o \
+	src/vk/vk_swapchain.o \
+	src/vk/vk_validation.o \
+	src/vk/vk_warp.o \
+	src/vk/vk_util.o \
+	src/vk/volk/volk.o \
+	src/files/surf.o \
+	src/files/models.o \
+	src/files/pcx.o \
+	src/files/stb.o \
+	src/files/wal.o \
+	src/files/pvs.o \
+	src/common/shared.o \
+	src/common/utils.o \
+	src/common/md4.o
+
+ifeq ($(YQ2_OSTYPE), Windows)
+REFVK_OBJS_ += \
+	src/backends/hunk_windows.o
+else # not Windows
+REFVK_OBJS_ += \
+	src/backends/hunk_unix.o
+endif
+
+# ----------
+
+# Rewrite paths to our object directory.
+REFVK_OBJS = $(patsubst %,$(BUILDDIR)/ref_vk/%,$(REFVK_OBJS_))
+
+# ----------
+
+# Generate header dependencies.
+REFVK_DEPS= $(REFVK_OBJS:.o=.d)
+
+# ----------
+
+# Suck header dependencies in.
+-include $(REFVK_DEPS)
+
+# ----------
+
+# ref_vk.so
+ifeq ($(YQ2_OSTYPE), Windows)
+$(BINDIR)/ref_vk.dll : $(REFVK_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFVK_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+$(BINDIR)/ref_vk.dylib : $(REFVK_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFVK_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
+else
+$(BINDIR)/ref_vk.so : $(REFVK_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFVK_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
+endif
+
+# ----------
