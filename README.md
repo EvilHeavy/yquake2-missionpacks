@@ -6,6 +6,8 @@ for the mission packs.
 I've uploaded a release. Alternatively, use the following set of commands
 to build the AppImage from source.
 ```
+git clone --recurse-submodules  https://github.com/EvilHeavy/yquake2-missionpacks.git
+cd yquake2-missionpacks
 make bin_client missionpacks ref_all
 ./make-appimage.sh
 NO_STRIP=true linuxdeploy --appdir=AppDir -oappimage
