@@ -4,3 +4,6 @@
 *.mk
 *.user
 *.d
+
+/AppDir/
+*.AppImage

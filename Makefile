@@ -3,9 +3,9 @@
 #                                                        #
 # Just type "make" to compile the                        #
 #  - Client (quake2)                                     #
-#  - Server (q2ded)                                      #
 #  - Quake II Game (baseq2)                              #
-#  - Renderer libraries (gl1, gl3, soft)                 #
+#  - Renderer libraries (gl3, gles3, soft)                #
+#  - Mission pack libraries (xatrix, rogue, ctf)         #
 #                                                        #
 # Base dependencies:                                     #
 #  - SDL 2 or SDL 3                                      #
@@ -24,6 +24,26 @@
 #  - OS X                                                #
 #  - Windows (MinGW)                                     #
 # ------------------------------------------------------ #
+
+# Alternate makes (feel free to mix & match)
+# -------------------------
+# Make everything
+# "make all"
+
+# Make client w/ all renderers
+# "make bin_client missionpacks ref_all"
+
+# Make client w/ legacy renderers (gl1, gles1)
+# "make bin_client missionpacks ref_legacy"
+
+# Make client w/ experimental renderers (gl4, vulkan)
+# "make bin_client missionpacks ref_experimental"
+
+# Make server (with mission packs)
+# "make bin_server missionpacks"
+
+# Clean
+# "make clean"
 
 # Variables
 # ---------
@@ -473,13 +493,41 @@ endif
 
 # ----------
 
-# Builds everything but the GLES1 renderer
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft xatrix rogue ctf ref_gl4 ref_vk
+# Default build
+default: bin_client missionpacks ref_stable
 
 # ----------
 
-# Builds everything, including the GLES1 renderer
-with_gles1: all ref_gles1
+# Core (show config + baseq2)
+core: config game
+
+# ----------
+
+# Client build (quake2 + software)
+bin_client: core client ref_soft
+
+# ----------
+
+# Server build (q2ded)
+bin_server: core server
+
+# ----------
+
+# Mission pack libraries
+missionpacks: xatrix rogue ctf
+
+# ----------
+
+# Renderer libraries
+ref_stable: ref_gl3 ref_gles3
+ref_legacy: ref_gl1 ref_gles1
+ref_experimental: ref_gl4 ref_vk
+ref_all: ref_stable ref_legacy ref_experimental
+
+# ----------
+
+# Builds everything
+all: bin_client server missionpacks ref_all
 
 # ----------
 

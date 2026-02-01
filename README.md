@@ -1,3 +1,20 @@
+This is a fork of [Yagami Quake II](https://github.com/yquake2/yquake2) 
+that wraps it into an AppImage with libraries for all the renderers on
+the [yquake2](https://github.com/yquake2) github, as well as libraries 
+for the mission packs.
+
+I've uploaded a release. Alternatively, use the following set of commands
+to build the AppImage from source.
+```
+make bin_client missionpacks ref_all
+NO_STRIP=true linuxdeploy --appdir=AppDir -oappimage
+```
+You need to pass a binary of linuxdeploy as part of the command, and you
+will also need to install appimage tool.
+[Please look here for more details.](https://docs.appimage.org/packaging-guide/from-source/native-binaries.html#build-appimages-from-appdir-using-linuxdeploy)
+[For other dependencies, please check out the yquake documentation.](https://github.com/yquake2/yquake2/blob/master/doc/020_installation.md#compiling-from-source)
+After building, please find the `quake2-x86_64.AppImage` file.
+
 # Yamagi Quake II
 
 Yamagi Quake II is an enhanced client for id Software's Quake II with
