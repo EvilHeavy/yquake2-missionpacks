@@ -7,12 +7,19 @@ I've uploaded a release. Alternatively, use the following set of commands
 to build the AppImage from source.
 ```
 make bin_client missionpacks ref_all
+./make-appimage.sh
 NO_STRIP=true linuxdeploy --appdir=AppDir -oappimage
+```
+Don't forget to make it executable
+```
+chmod +x ./make-appimage.sh
 ```
 You need to pass a binary of linuxdeploy as part of the command, and you
 will also need to install appimage tool.
 [Please look here for more details.](https://docs.appimage.org/packaging-guide/from-source/native-binaries.html#build-appimages-from-appdir-using-linuxdeploy)
+
 [For other dependencies, please check out the yquake documentation.](https://github.com/yquake2/yquake2/blob/master/doc/020_installation.md#compiling-from-source)
+
 After building, please find the `quake2-x86_64.AppImage` file.
 
 # Yamagi Quake II

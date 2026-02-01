@@ -36,4 +36,4 @@ cp ./stuff/icon/Quake2.png ./AppDir/usr/share/icons/hicolor/512x512/apps
 mkdir -p ./AppDir/usr/share/applications/
 cp ./stuff/quake2.desktop ./AppDir/usr/share/applications/
 
-NO_STRIP=true linuxdeploy --appdir=AppDir -oappimage
+#NO_STRIP=true linuxdeploy --appdir=AppDir -oappimage
